@@ -1,5 +1,8 @@
 import fetch from "node-fetch";
 import fs from "fs";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const args = process.argv.slice(2);
 if (!args[0]) {
@@ -8,7 +11,7 @@ if (!args[0]) {
 }
 
 const prompt = args.join(" ");
-const API_TOKEN = "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";
+const API_TOKEN = process.env.HF_API_TOKEN;
 const MODEL = "stabilityai/stable-diffusion-2";
 
 (async () => {
