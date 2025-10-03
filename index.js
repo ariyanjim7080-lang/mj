@@ -1,39 +1,38 @@
-const express = require("express");
-const axios = require("axios");
+import fetch from "node-fetch";
+import fs from "fs";
 
-const app = express();
-const API_KEY = "2fe137fbb84be28bf3d00347676528d0";
+const args = process.argv.slice(2);
+if (!args[0]) {
+  console.error("Please provide a prompt.");
+  process.exit(1);
+}
 
-app.get("/upload", async (req, res) => {
+const prompt = args.join(" ");
+const API_TOKEN = "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";
+const MODEL = "stabilityai/stable-diffusion-2";
+
+(async () => {
   try {
-    const imageUrl = req.query.url;
-    if (!imageUrl) {
-      return res.status(400).json({ error: "No image URL provided" });
+    const res = await fetch(`https://api-inference.huggingface.co/models/${MODEL}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ inputs: prompt })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
     }
 
-    const response = await axios.post(
-      `https://api.imgbb.com/1/upload?key=${API_KEY}`,
-      new URLSearchParams({ image: imageUrl }).toString(),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    );
-
-    res.json({
-      success: true,
-      url: response.data.data.url,
-      delete_url: response.data.data.delete_url
-    });
+    const data = await res.arrayBuffer();
+    const buffer = Buffer.from(data);
+    const fileName = "output.png";
+    fs.writeFileSync(fileName, buffer);
+    console.log(`Image saved as ${fileName}`);
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({
-      success: false,
-      error: err.response?.data || err.message
-    });
+    console.error("Error:", err.message);
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("ImgBB GET API running");
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+})();
