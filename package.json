@@ -1,5 +1,5 @@
 {
-  "name": "hf-image-cli",
+  "name": "hf-flux-cli",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.2",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "dotenv": "^16.0.0"
   }
 }
